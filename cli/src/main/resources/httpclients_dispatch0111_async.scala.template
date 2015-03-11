@@ -1,5 +1,7 @@
 package scalaxb
 
+import com.ning.http.client.providers.netty.NettyAsyncHttpProvider
+import com.ning.http.client.{AsyncHttpClientConfig, AsyncHttpClient}
 import concurrent.Future
 
 trait DispatchHttpClientsAsync extends HttpClientsAsync {
@@ -9,7 +11,7 @@ trait DispatchHttpClientsAsync extends HttpClientsAsync {
     import dispatch._, Defaults._
 
     // Keep it lazy. See https://github.com/eed3si9n/scalaxb/pull/279
-    lazy val http = new Http()
+    lazy val http = new Http(new AsyncHttpClient(new NettyAsyncHttpProvider(new AsyncHttpClientConfig.Builder().setUseProxyProperties(true).build())))
     
     def request(in: String, address: java.net.URI, headers: Map[String, String]): concurrent.Future[String] = {
       val req = url(address.toString).setBodyEncoding("UTF-8") <:< headers << in
